@@ -217,21 +217,22 @@ const changeCurrentPassword = asynchandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "password change is successfully"));
+    .json(new ApiResponse(200, {}, "password change successfully"));
 });
 
 const getCurrentUser = asynchandler(async (req, res) => {
   return res
     .status(200)
-    .json(200, req.user, "current user feched successfully");
+    .json(new ApiResponse(200, req.user, "current user feched successfully"));
 });
 
 const updateAccountDetails = asynchandler(async (req, res) => {
   const { fullName, email, userName } = req.body;
+
   if (!fullName || !email || !userName) {
     throw new ApiError(400, "all fildes are required");
   }
-  const user = User.findByIdAndUpdate(
+  const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
@@ -299,6 +300,64 @@ const updateUserCoverImage = asynchandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, user, "coverImage updated successfully"));
+});
+
+const getUserChannelProfile = asynchandler(async (req, res) => {
+  const { username } = req.params;
+  if (!username) {
+    throw new ApiError(400, "username is missing");
+  }
+  const channel = await User.aggregate([
+    {
+      // user match
+      $match: {
+        username: username?.toLowerCase(),
+      },
+    },
+    {
+      $lookup: {
+        // firs piplines
+        from: "subsciption",
+        localField: "_id",
+        foreignField: "chenal",
+        as: "subribers",
+      },
+    },
+    {
+      $lookup: {
+        // second piplines
+        from: "subsciption",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribedTo",
+      },
+    },
+    {
+      $addFields: {
+        // merge to pipe lines
+        subscriberCount: {
+          $size: "$subribers",
+        },
+        chanalSubscribedToCount: {
+          $size: "$subscribedTo",
+        },
+        isSubscribed: {
+          $cond: {
+            if: { $in: [req.user?._id, "$subribers.subriber"] },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        fullName: 1,
+        username: 1,
+        subscriberCount: 1,
+      },
+    },
+  ]);
 });
 
 export {

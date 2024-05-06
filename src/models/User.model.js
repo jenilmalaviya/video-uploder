@@ -8,7 +8,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
       unique: true,
-      lowercase: false,
+      lowercase: true,
       trim: true,
       index: true,
     },

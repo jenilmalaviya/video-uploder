@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-const subsciptionSchema = new Schema(
+const subscriptionSchema = new Schema(
   {
     subscriber: {
       type: Schema.Types.ObjectId,
@@ -15,4 +15,4 @@ const subsciptionSchema = new Schema(
   }
 );
 
-const Subsciption = mongoose.model("subsciption", subsciptionSchema);
+export const Subsciption = mongoose.model("Subsciption", subscriptionSchema);
