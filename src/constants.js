@@ -1,3 +1,3 @@
-const DB_NAME = "videotube"
+const DB_NAME = "youtub";
 
-export {DB_NAME}
+export { DB_NAME };
