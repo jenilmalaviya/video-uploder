@@ -146,7 +146,7 @@ const logoutUser = asynchandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: {
+      $unset: {
         refreshToken: 1,
       },
     },
@@ -305,7 +305,7 @@ const updateUserCoverImage = asynchandler(async (req, res) => {
 
 const getUserChannelProfile = asynchandler(async (req, res) => {
   const { username } = req.params;
-  if (!username) {
+  if (!username?.trim()) {
     throw new ApiError(400, "username is missing");
   }
   const channel = await User.aggregate([
