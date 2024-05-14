@@ -41,7 +41,6 @@ const registerUser = asynchandler(async (req, res) => {
   // response return
 
   const { fullName, userName, email, Password } = req.body;
-  console.log(req.body);
 
   if (
     [fullName, userName, email, Password].some((field) => field?.trim() === "")
@@ -375,10 +374,10 @@ const getUserChannelProfile = asynchandler(async (req, res) => {
 });
 
 const getWhatchHistory = asynchandler(async (req, res) => {
-  const user = await User.aggregate([
+  const history = await User.aggregate([
     {
       $match: {
-        _id: new mongoose.Types.ObjectId(req.user._id),
+        _id: new mongoose.Types.ObjectId(req.user?._id),
       },
     },
     {
@@ -421,7 +420,7 @@ const getWhatchHistory = asynchandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        user[0].watchHistory,
+        history[0].watchHistory,
         "watch history fached successFully"
       )
     );
